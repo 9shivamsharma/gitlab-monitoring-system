@@ -31,7 +31,7 @@ ls -la *.csv >> $LOG_FILE 2>&1
 LATEST_CSV=$(ls -t gitlab_activity_report_*.csv 2>/dev/null | head -n 1)
 
 if [ -n "$LATEST_CSV" ]; then
-    # Send email with CSV attachment using Microsoft Graph API
+    # Send email with CSV attachment using SMTP (reliable, no token expiry!)
     echo "Sending email with attachment: $LATEST_CSV" >> $LOG_FILE
     
     # Get current date and time for email
@@ -52,18 +52,20 @@ Report Details:
 Best regards,
 GitLab Monitoring System"
     
-    # Send email using Microsoft Graph API
-    python3 send_email_graph.py "$(python3 -c 'import graph_config; print(graph_config.GRAPH_TOKEN)')" \
-        "chandrasekhar.karri@simplyfi.tech" \
+    # Send email using SMTP (Gmail) - reliable and never expires!
+    python3 send_email_smtp.py \
+        "$(python3 -c 'from config import FROM_EMAIL; print(FROM_EMAIL)')" \
+        "$(python3 -c 'from config import EMAIL_PASSWORD; print(EMAIL_PASSWORD)')" \
+        "$(python3 -c 'from config import TO_EMAIL; print(TO_EMAIL)')" \
         "$EMAIL_SUBJECT" \
         "$EMAIL_BODY" \
         "$LATEST_CSV" >> $LOG_FILE 2>&1
     
     if [ $? -eq 0 ]; then
-        echo "Email sent successfully to chandrasekhar.karri@simplyfi.tech using Microsoft Graph API" >> $LOG_FILE
+        echo "Email sent successfully via SMTP (Gmail)" >> $LOG_FILE
     else
-        echo "Failed to send email using Microsoft Graph API" >> $LOG_FILE
-        echo "Please check your Graph token configuration in graph_config.py" >> $LOG_FILE
+        echo "Failed to send email via SMTP" >> $LOG_FILE
+        echo "Please check your Gmail App Password configuration in config.py" >> $LOG_FILE
     fi
 else
     echo "No CSV file found to send" >> $LOG_FILE
