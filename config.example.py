@@ -23,6 +23,9 @@ GRAPH_TOKEN = os.environ.get('GRAPH_TOKEN', 'your-graph-token-here')
 FROM_EMAIL = "your-sender@domain.com"
 TO_EMAIL = "your-recipient@domain.com"
 
+# SMTP Email Configuration (for daily automation - RECOMMENDED)
+EMAIL_PASSWORD = os.environ.get('EMAIL_PASSWORD', 'your-email-app-password-here')  # Gmail App Password
+
 # Email Template Settings
 EMAIL_SUBJECT_TEMPLATE = "GitLab Activity Report - {date}"
 EMAIL_BODY_TEMPLATE = """Hello,
